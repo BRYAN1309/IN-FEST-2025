@@ -337,9 +337,6 @@ const App: React.FC = () => {
                 Start Your Journey
                 <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
               </button>
-              <button className="px-8 py-4 border border-gray-600 hover:border-white rounded-xl font-semibold text-lg transition-all duration-300 hover:bg-white/5">
-                Learn More
-              </button>
             </div>
           </div>
         </section>
