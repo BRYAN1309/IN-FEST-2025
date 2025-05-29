@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 // import App from './App.tsx'
 import LoginPage from './pages/LoginPage/page.tsx'
-// import RegisterPage from './pages/RegisterPage/RegisterPage.tsx'
+import RegisterPage from './pages/RegisterPage/page.tsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <Routes>
         {/* <Route path="/" element={<App />} /> */}
         <Route path="/login" element={<LoginPage />} />
-        {/* <Route path="/register" element={<RegisterPage />} /> */}
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
