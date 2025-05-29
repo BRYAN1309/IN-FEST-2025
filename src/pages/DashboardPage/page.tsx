@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Send } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 
-interface DashboardPageProps {
-  onNavigate?: (page: string) => void;
-}
-
-const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
+const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Array<{id: number, text: string, sender: 'user' | 'ai'}>>([]);
 
@@ -42,8 +40,19 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
   };
 
   const handleNavigation = (page: string) => {
-    if (onNavigate) {
-      onNavigate(page);
+    switch (page) {
+      case 'home':
+        navigate('/');
+        break;
+      case 'chatbot':
+        navigate('/dashboard');
+        break;
+      case 'articles':
+        // Add route for articles if needed
+        navigate('/articles');
+        break;
+      default:
+        navigate('/');
     }
   };
 

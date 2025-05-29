@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MessageCircle, FileText, User, Menu, X, Home } from 'lucide-react';
 
 interface SidebarProps {
@@ -7,6 +8,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activePage = 'chatbot', onNavigate }) => {
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -14,9 +16,27 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'chatbot', onNavigate })
   };
 
   const handleNavigation = (page: string) => {
+    // Use React Router for navigation
+    switch (page) {
+      case 'home':
+        navigate('/');
+        break;
+      case 'chatbot':
+        navigate('/dashboard');
+        break;
+      case 'articles':
+        // Add route for articles if needed
+        navigate('/articles');
+        break;
+      default:
+        navigate('/');
+    }
+
+    // Also call the onNavigate prop if provided (for compatibility)
     if (onNavigate) {
       onNavigate(page);
     }
+
     // Close sidebar on mobile after navigation
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);

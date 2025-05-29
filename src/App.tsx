@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Target, Brain, Sparkles, ArrowRight, Star, TrendingUp, Award, BookOpen, Briefcase } from 'lucide-react';
 import Navbar from './components/navbar';
 import Footer from './components/Footer';
-import DashboardPage from './pages/DashboardPage/page';
-import ArticlesPage from './pages/ArticlesPage/page';
-
 
 const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState('home');
+  const navigate = useNavigate();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [isVisible, setIsVisible] = useState({});
 
-  // Navigate to different pages
+  // Navigate to different pages using React Router
   const navigateTo = (page: string) => {
-    setCurrentPage(page);
+    if (page === 'chatbot') {
+      navigate('/dashboard');
+    } else {
+      // Handle other navigation if needed
+      navigate(`/${page}`);
+    }
   };
 
   // Animated counter hook
@@ -84,15 +87,6 @@ const App: React.FC = () => {
 
     return () => observer.disconnect();
   }, []);
-
-  // Render different pages based on currentPage state
-  if (currentPage === 'chatbot') {
-    return <DashboardPage onNavigate={navigateTo} />;
-  }
-
-  if (currentPage === 'articles') {
-    return <ArticlesPage onNavigate={navigateTo} />;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-black text-white overflow-x-hidden">
