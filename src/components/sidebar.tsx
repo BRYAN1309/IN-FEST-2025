@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, FileText, User, Menu, X, Home } from 'lucide-react';
+import { MessageCircle, FileText, User, Menu, X, Home, Target } from 'lucide-react';
 
 interface SidebarProps {
   activePage?: string;
   onNavigate?: (page: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activePage = 'chatbot', onNavigate }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activePage = 'Home', onNavigate }) => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -19,7 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'chatbot', onNavigate })
     // Use React Router for navigation
     switch (page) {
       case 'home':
-        navigate('/');
+        navigate('/Home');
         break;
       case 'chatbot':
         navigate('/dashboard');
@@ -27,6 +27,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'chatbot', onNavigate })
       case 'articles':
         // Add route for articles if needed
         navigate('/articles');
+        break;
+      case 'goals':
+        navigate('/goals');
         break;
       default:
         navigate('/');
@@ -58,6 +61,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'chatbot', onNavigate })
       id: 'articles',
       label: 'Articles',
       icon: <FileText className="w-5 h-5" />,
+    },
+    {
+      id: 'goals',
+      label: 'Goals',
+      icon: <Target className="w-5 h-5" />,
     },
   ];
 

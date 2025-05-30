@@ -73,7 +73,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ onNavigate }) => {
   const categories = ["All", "Technology", "Career Advice", "Self-Discovery", "Remote Work", "Networking", "AI & Future"];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-black to-purple-900/50 text-white">
       {/* Global Sidebar */}
       <Sidebar activePage="articles" onNavigate={handleNavigation} />
 
