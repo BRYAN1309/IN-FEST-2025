@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\GoalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,5 +26,9 @@ Route::group([
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
-
+    Route::get('/article', [ArticleController::class, 'index']);
+    Route::post('/article', [ArticleController::class, 'store']);
+    Route::middleware('auth:api')->group(function () {
+        Route::apiResource('goals', GoalController::class);
+    });
 });
