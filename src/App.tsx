@@ -333,7 +333,7 @@ const App: React.FC = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 md:py-24 bg-gradient-to-r from-blue-900/30 to-purple-900/30"> {/* Kurangi py di mobile */}
+        <section className="py-16 md:py-24 bg-transparant"> {/* Kurangi py di mobile */}
           <div className="max-w-xl md:max-w-4xl mx-auto px-4 sm:px-6 text-center"> {/* Kurangi max-w dan px di mobile */}
             {/* Ukuran font heading: Kurangi font size untuk mobile (text-3xl atau text-4xl) */}
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 md:mb-6">

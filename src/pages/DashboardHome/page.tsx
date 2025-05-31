@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { User, MessageCircle, FileText, TrendingUp, Clock, Award, Target, Book, ArrowRight, BarChart3, Zap, Calendar } from 'lucide-react';
-import { getProfile } from '@/api/auth';
+import { User, MessageCircle, FileText, TrendingUp, Clock, Award, Target, Book, ArrowRight, BarChart3, Zap, Calendar, LogOut } from 'lucide-react';
+import { getProfile,logout } from '@/api/auth';
+import { isAuthenticated } from '@/api/auth';
+import { useNavigate } from 'react-router-dom';
 
 const DashboardHome = () => {
     const [currentTime, setCurrentTime] = useState('');
@@ -8,8 +10,13 @@ const DashboardHome = () => {
     const [userName, setUserName] = useState('Guest');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
+        if (!isAuthenticated()) {
+            navigate('/login'); 
+            return;
+        }
         const updateTime = () => {
             const now = new Date();
             
@@ -42,6 +49,11 @@ const DashboardHome = () => {
                 if (storedUser) {
                     setUserName(storedUser);
                 }
+                 if ((err as any).response?.status === 401) {
+                    localStorage.removeItem('auth_token');
+                    localStorage.removeItem('token');
+                    navigate('/login');
+                }
             } finally {
                 setLoading(false);
             }
@@ -51,26 +63,36 @@ const DashboardHome = () => {
 
         return () => clearInterval(timer);
     }, []);
-    if (loading) {
-        return (
-            <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 md:p-8">
-                <div className="text-white">Loading user data...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 md:p-8">
-                <div className="text-red-400">{error}</div>
-            </div>
-        );
-    }
+    
     
     const handleQuickAction = (route: string) => {
         // This will be handled by parent component or global navigation
         window.location.href = route;
     };
+
+    const handleLogout = async () => {
+        try {
+            // Call the API logout endpoint
+            await logout();
+            
+            // Clear localStorage
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_email');
+            
+            // Redirect to login page or home
+            window.location.href = '/';
+        } catch (error) {
+            console.error('Logout failed:', error);
+            // Even if API logout fails, we should clear client-side storage
+            localStorage.removeItem('user_name');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_email');
+            window.location.href = '/';
+        }
+        };
 
     const quickActions = [
         {
@@ -140,9 +162,18 @@ const DashboardHome = () => {
                     </h1>
                     <p className="text-gray-400">Ready to continue your career journey?</p>
                 </div>
-                <div className="text-right">
-                    <div className="text-xl font-bold text-white">{currentTime}</div>
-                    <div className="text-gray-400 text-sm">{currentDate}</div>
+                <div className="text-right flex flex-col items-end gap-3">
+                    <div>
+                        <div className="text-xl font-bold text-white">{currentTime}</div>
+                        <div className="text-gray-400 text-sm">{currentDate}</div>
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 hover:border-red-500/50 rounded-lg text-red-400 hover:text-red-300 transition-all duration-300 group"
+                    >
+                        <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        <span className="text-sm font-medium">Logout</span>
+                    </button>
                 </div>
                 </div>
             </div>

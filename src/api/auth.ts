@@ -1,6 +1,5 @@
 // src/api/auth.ts
 import api from './axios';
-
 import axios from './axios';
 
 
@@ -66,14 +65,29 @@ export const getProfile = async (): Promise<User> => {
 export const logout = async (): Promise<void> => {
   try {
     const token = localStorage.getItem('token');
-    if (!token) return;
-    
+    if (!token) {
+      console.warn('No token found - already logged out');
+      return;
+    }
+
+    // Set authorization header
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    // Make API call to backend logout endpoint
     await api.post('/auth/logout');
+    
+  } catch (error) {
+    console.error('Logout API error:', error);
+    throw error; // Re-throw to handle in UI
   } finally {
-    // Clear storage regardless of logout success
+    // Always clear client-side storage
     localStorage.removeItem('token');
     localStorage.removeItem('user_name');
+    localStorage.removeItem('user_email');
+    localStorage.removeItem('auth_token'); // Remove any other auth items
+    
+    // Remove authorization header
+    delete api.defaults.headers.common['Authorization'];
   }
 };
 
@@ -107,4 +121,7 @@ export const fetchGoals = async () => {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   const res = await api.get('/auth/goals'); // Adjust if your route is different
   return res.data;
+};
+export const isAuthenticated = () => {
+  return !!localStorage.getItem('auth_token') || !!localStorage.getItem('token');
 };

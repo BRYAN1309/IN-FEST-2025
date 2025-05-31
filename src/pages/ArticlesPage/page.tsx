@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { BookOpen, Clock, User, ArrowRight } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { getArticles } from '@/api/auth';
-
+import { isAuthenticated } from '@/api/auth';
+import { useNavigate } from 'react-router-dom';
 interface ArticlesPageProps {
   onNavigate?: (page: string) => void;
 }
+// const navigate = useNavigate();
 
 interface Article {
   title: string;
@@ -19,7 +21,15 @@ interface Article {
 const ArticlesPage: React.FC<ArticlesPageProps> = ({ onNavigate }) => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
+   useEffect(() =>{
+     if (!isAuthenticated()) {
+        navigate('/login'); 
+        return;
+     }
+  })
+  
   const handleNavigation = (page: string) => {
     if (onNavigate) {
       onNavigate(page);

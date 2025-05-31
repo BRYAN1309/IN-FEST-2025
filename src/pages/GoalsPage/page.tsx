@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Target, Plus, Edit3, Trash2, CheckCircle, Clock, Calendar, TrendingUp, Star, Filter, Search, BarChart3, Award, Zap, BookOpen, Code, Briefcase, Users, X, Save } from 'lucide-react';
 import Sidebar from '@/components/sidebar'; // Import your existing Sidebar component
-
+import { useNavigate } from 'react-router-dom';
+import { isAuthenticated } from '@/api/auth';
 const GoalsPage = () => {
     const [activePage, setActivePage] = useState('goals');
+    const navigate = useNavigate();
+    useEffect(() =>{
+        if (!isAuthenticated()) {
+            navigate('/login'); 
+            return;
+        }
+    })
     const [goals, setGoals] = useState([
         {
         id: 1,

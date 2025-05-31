@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Send } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
-
+import { isAuthenticated } from '@/api/auth';
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [inputMessage, setInputMessage] = useState('');
@@ -31,16 +31,20 @@ const DashboardPage: React.FC = () => {
       }, 1000);
     }
   };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
-
+  useEffect(() =>{
+     if (!isAuthenticated()) {
+        navigate('/login'); 
+        return;
+     }
+  })
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900/50 via-black to-blue-900/30 text-white">
       {/* Global Sidebar - Hapus onNavigate prop */}
       <Sidebar activePage="chatbot" />
 
@@ -66,7 +70,7 @@ const DashboardPage: React.FC = () => {
               /* Welcome Message */
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
                 <div className="mb-8">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <MessageCircle className="w-8 h-8" />
                   </div>
                   <h2 className="text-2xl md:text-3xl font-bold mb-4">
@@ -88,7 +92,7 @@ const DashboardPage: React.FC = () => {
                     <div
                       className={`max-w-xs md:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl ${
                         message.sender === 'user'
-                          ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                          ? 'bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 text-white'
                           : 'bg-gray-800/50 border border-gray-700/50 text-gray-100'
                       }`}
                     >
@@ -101,7 +105,7 @@ const DashboardPage: React.FC = () => {
           </div>
 
           {/* Chat Input - Fixed at bottom */}
-          <div className="sticky bottom-0 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent pt-4 pb-6">
+          <div className="sticky bottom-0 bg-transparant pt-4 pb-6">
             <div className="relative">
               <div className="relative bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 rounded-2xl p-4 focus-within:border-purple-500/50 transition-colors">
                 <textarea
@@ -116,7 +120,7 @@ const DashboardPage: React.FC = () => {
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim()}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 rounded-xl flex items-center justify-center transition-all duration-200 disabled:cursor-not-allowed hover:scale-105"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 rounded-xl flex items-center justify-center transition-all duration-200 disabled:cursor-not-allowed hover:scale-105"
                 >
                   <Send className="w-5 h-5" />
                 </button>

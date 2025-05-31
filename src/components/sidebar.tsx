@@ -1,33 +1,72 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, FileText, User, Menu, X, Home, Target, LogOut, ChevronDown } from 'lucide-react';
+import { getProfile, logout } from '../api/auth';
+
+interface UserInfo {
+  name: string;
+  email: string;
+}
 
 interface SidebarProps {
   activePage?: string;
   onNavigate?: (page: string) => void;
-  userInfo?: {
-    name?: string;
-    email?: string;
-  };
+  userInfo?: UserInfo;
   onLogout?: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
   activePage = 'Home', 
   onNavigate, 
-  userInfo = { name: 'User', email: 'user@example.com' },
+  userInfo: initialUserInfo = { name: 'User', email: 'user@example.com' },
   onLogout 
 }) => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-
-  // Buat ref untuk sidebar container
+  const [userInfo, setUserInfo] = useState<UserInfo>(initialUserInfo);
+  const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
+  
   const sidebarRef = useRef<HTMLDivElement>(null);
-  // Buat ref untuk tombol toggle (hamburger)
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
-  // Buat ref untuk profile menu
   const profileMenuRef = useRef<HTMLDivElement>(null);
+
+
+  // Fetch user data
+  useEffect(() => {
+     const fetchUserData = async () => {
+      try {
+        // Only fetch if we haven't already fetched and if we don't have valid initial data
+        if (!hasFetched && (!initialUserInfo.name || initialUserInfo.name === 'User')) {
+          const user = await getProfile();
+          setUserInfo({
+            name: user.name,
+            email: user.email
+          });
+          // Store in localStorage for fallback
+          localStorage.setItem('user_name', user.name);
+          localStorage.setItem('user_email', user.email);
+          setHasFetched(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch user profile', error);
+        // Fallback to localStorage if available
+        const storedName = localStorage.getItem('user_name');
+        const storedEmail = localStorage.getItem('user_email');
+        if (storedName || storedEmail) {
+          setUserInfo({
+            name: storedName || 'User',
+            email: storedEmail || ''
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [initialUserInfo, hasFetched]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -37,21 +76,41 @@ const Sidebar: React.FC<SidebarProps> = ({
     setIsProfileMenuOpen(!isProfileMenuOpen);
   };
 
-  const handleLogout = () => {
-    // Tutup menu profile dan sidebar
+  const handleLogout = async () => {
     setIsProfileMenuOpen(false);
     setIsSidebarOpen(false);
     
-    // Panggil fungsi logout yang diberikan dari parent component
-    if (onLogout) {
-      onLogout();
-    } else {
-      // Default behavior: clear localStorage dan navigate ke login
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userData');
-      navigate('/');
+    try {
+      await logout();
+      if (onLogout) {
+        onLogout();
+      } else {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user_name');
+        localStorage.removeItem('user_email');
+        navigate('/');
+      }
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+        if (toggleButtonRef.current && !toggleButtonRef.current.contains(event.target as Node)) {
+          setIsSidebarOpen(false);
+        }
+      }
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleNavigation = (page: string) => {
     // Use React Router for navigation
@@ -209,18 +268,12 @@ const Sidebar: React.FC<SidebarProps> = ({
               className="w-full flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/50 hover:bg-gray-700/50 transition-all duration-200"
             >
               <div className="w-8 h-8 bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 rounded-full flex items-center justify-center">
-                {userInfo.avatar ? (
-                  <img 
-                    src={userInfo.avatar} 
-                    alt="Profile" 
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                ) : (
-                  <User className="w-4 h-4 text-white" />
-                )}
+                <User className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-sm text-gray-300 font-medium">{userInfo.name || 'My Profile'}</p>
+                <p className="text-sm text-gray-300 font-medium">
+                  {userInfo.name || 'My Profile'}
+                </p>
                 {userInfo.email && (
                   <p className="text-xs text-gray-500 truncate">{userInfo.email}</p>
                 )}
@@ -234,7 +287,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
             {/* Profile Dropdown Menu */}
             {isProfileMenuOpen && (
-              <div className="absolute bottom-full left-0 right-0 mb-2 bg-gray-800/90 backdrop-blur-sm border border-gray-700/50 rounded-xl shadow-lg overflow-hidden">
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-gray-800/90 backdrop-blur-sm border border-gray-700/50 rounded-xl shadow-lg overflow-hidden z-50">
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-3 px-4 py-3 text-left text-red-400 hover:bg-red-500/10 transition-colors duration-200"
