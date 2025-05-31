@@ -34,3 +34,9 @@ export const logout = async () => {
   localStorage.removeItem('token');
   return res;
 };
+export const getArticles = async () => {
+  const token = localStorage.getItem('token');
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  const res = await api.get('/auth/article'); // or your correct endpoint
+  return res.data;
+};
