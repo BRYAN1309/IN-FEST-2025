@@ -267,7 +267,7 @@ const GoalsPage = () => {
         resetForm();
     };
 
-    const handleDeleteGoal = (goalId) => {
+    const handleDeleteGoal = (goalId: number | React.SetStateAction<null>) => {
         setDeletingGoalId(goalId);
         setShowDeleteConfirm(true);
     };
@@ -310,7 +310,7 @@ const GoalsPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
                         <Target className="w-5 h-5" />
                     </div>
                     Career Goals
@@ -319,7 +319,7 @@ const GoalsPage = () => {
                 </div>
                 <button
                     onClick={() => setShowAddGoal(true)}
-                    className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105"
+                    className="flex items-center gap-2 bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 hover:from-pink-700 hover:via-purple-500 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105"
                 >
                     <Plus className="w-5 h-5" />
                     Add New Goal
@@ -404,7 +404,7 @@ const GoalsPage = () => {
                         </div>
                         <div className="bg-gray-700 rounded-full h-2">
                         <div 
-                            className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 h-2 rounded-full transition-all duration-500"
                             style={{ width: `${goal.progress}%` }}
                         ></div>
                         </div>

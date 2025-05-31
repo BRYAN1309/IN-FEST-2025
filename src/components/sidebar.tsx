@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, FileText, User, Menu, X, Home, Target } from 'lucide-react';
 
@@ -10,6 +10,11 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activePage = 'Home', onNavigate }) => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Buat ref untuk sidebar container
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  // Buat ref untuk tombol toggle (hamburger)
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -25,7 +30,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'Home', onNavigate }) =>
         navigate('/dashboard');
         break;
       case 'articles':
-        // Add route for articles if needed
         navigate('/articles');
         break;
       case 'goals':
@@ -41,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'Home', onNavigate }) =>
     }
 
     // Close sidebar on mobile after navigation
-    if (window.innerWidth < 768) {
+    if (window.innerWidth < 768) { // md breakpoint = 768px
       setIsSidebarOpen(false);
     }
   };
@@ -69,37 +73,70 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'Home', onNavigate }) =>
     },
   ];
 
+  // Efek untuk mendeteksi klik di luar sidebar
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isSidebarOpen &&
+        sidebarRef.current && !sidebarRef.current.contains(event.target as Node) &&
+        toggleButtonRef.current && !toggleButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsSidebarOpen(false); // Tutup sidebar
+      }
+    };
+
+    // Tambahkan event listener saat sidebar terbuka
+    if (isSidebarOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      // Hapus event listener saat sidebar tertutup untuk menghindari memory leaks
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    // Cleanup function: akan dijalankan saat komponen di-unmount atau sebelum useEffect dijalankan lagi
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSidebarOpen]); // Dependency array: efek ini akan berjalan ulang ketika isSidebarOpen berubah
+
   return (
     <>
       {/* Sidebar Toggle Button - Fixed position */}
       <button
+        ref={toggleButtonRef} // Pasang ref di sini
         onClick={toggleSidebar}
         className="fixed top-4 left-4 z-50 p-3 bg-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl hover:bg-gray-800/90 transition-all duration-300 text-white"
+        aria-label="Toggle sidebar"
       >
         {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
 
-      {/* Mobile Overlay */}
+      {/* Mobile Overlay (Opsional: ini juga bisa berfungsi sebagai penutup jika diklik) */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
+          onClick={() => setIsSidebarOpen(false)} // Klik overlay juga akan menutup sidebar
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 transition-transform duration-300 z-50 ${
+        ref={sidebarRef} // Pasang ref di sini
+        className={`fixed top-0 left-0 h-full transition-transform duration-300 z-50 w-64 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } w-64`}
+        }`}
+        style={{
+          background: 'rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRight: '3px transparent solid',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        }}
       >
         <div className="flex flex-col h-full p-6 pt-20">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-sm font-bold">N</span>
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            <span className="text-3xl ml-3.5 font-bold bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 bg-clip-text text-transparent">
               NextPath
             </span>
           </div>
@@ -125,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'Home', onNavigate }) =>
           {/* Profile Section */}
           <div className="mt-auto">
             <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-xl border border-gray-700/50">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 rounded-full flex items-center justify-center">
                 <User className="w-4 h-4" />
               </div>
               <span className="text-sm text-gray-300">My Profile</span>
@@ -133,13 +170,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage = 'Home', onNavigate }) =>
           </div>
         </div>
       </div>
-
-      {/* Backdrop for when sidebar is open */}
-      <div
-        className={`fixed inset-0 transition-opacity duration-300 ${
-          isSidebarOpen ? 'opacity-100 pointer-events-none' : 'opacity-0 pointer-events-none'
-        }`}
-      />
     </>
   );
 };

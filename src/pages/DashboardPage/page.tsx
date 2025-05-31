@@ -39,27 +39,10 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleNavigation = (page: string) => {
-    switch (page) {
-      case 'home':
-        navigate('/');
-        break;
-      case 'chatbot':
-        navigate('/dashboard');
-        break;
-      case 'articles':
-        // Add route for articles if needed
-        navigate('/articles');
-        break;
-      default:
-        navigate('/');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 text-white">
-      {/* Global Sidebar */}
-      <Sidebar activePage="chatbot" onNavigate={handleNavigation} />
+      {/* Global Sidebar - Hapus onNavigate prop */}
+      <Sidebar activePage="chatbot" />
 
       {/* Main Content */}
       <div className="flex flex-col min-h-screen pl-4 pr-4 md:pl-6 md:pr-6">

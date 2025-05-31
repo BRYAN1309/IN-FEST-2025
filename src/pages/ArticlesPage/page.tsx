@@ -51,7 +51,7 @@ const ArticlesPage: React.FC<ArticlesPageProps> = ({ onNavigate }) => {
         <header className="pt-20 pb-8">
           <div className="max-w-6xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">
-              Career <span className="text-blue-400">Articles</span>
+              Career <span className="bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 text-transparent bg-clip-text">Articles</span>
             </h1>
             <p className="text-gray-400 text-lg max-w-2xl">
               Explore our collection of career guidance articles, industry insights, and professional development tips.

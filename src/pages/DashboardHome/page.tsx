@@ -44,7 +44,7 @@ const DashboardHome = () => {
         description: 'Get personalized career guidance',
         icon: <MessageCircle className="w-6 h-6" />,
         route: '/dashboard',
-        color: 'from-blue-500 to-purple-600',
+        color: 'from-pink-600 via-purple-500 to-purple-600',
         bgColor: 'bg-blue-500/10 hover:bg-blue-500/20'
         },
         {
@@ -199,7 +199,7 @@ const DashboardHome = () => {
                 <div className="p-4 bg-gray-700/30 rounded-lg">
                     <h3 className="font-medium text-white mb-2">Learn React & TypeScript</h3>
                     <div className="bg-gray-600 rounded-full h-2 mb-2">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style={{width: '75%'}}></div>
+                    <div className="bg-gradient-to-r from-pink-600 via-purple-500 to-purple-600 h-2 rounded-full" style={{width: '75%'}}></div>
                     </div>
                     <span className="text-sm text-gray-400">75% Complete</span>
                 </div>
