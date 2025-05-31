@@ -317,7 +317,7 @@ def main():
         # Load the model (make sure to set your API key)
         model_impl = GeminiModelImplementation(
             model_path="my_career_chatbot.pkl", 
-            api_key="AIzaSyDe6ybNaVlchUJfWsfkIh2YjJNpqGy3Xgk"  # Replace with your actual API key
+            api_key="API-KEY"  # Replace with your actual API key
         )
         
         # Show model information
