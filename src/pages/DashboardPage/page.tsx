@@ -1,51 +1,128 @@
+// src/pages/DashboardPage/page.tsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Send } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { isAuthenticated } from '@/api/auth';
+import axios from 'axios';
+
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [inputMessage, setInputMessage] = useState('');
   const [messages, setMessages] = useState<Array<{id: number, text: string, sender: 'user' | 'ai'}>>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim()) {
-      // Add user message
-      const newMessage = {
+  // API URL - sesuaikan dengan server Anda
+  const AI_API_URL = 'http://localhost:5000'; // atau 'http://127.0.0.1:5000'
+
+  // Test API connection on component mount
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        const response = await axios.get(`${AI_API_URL}/status`);
+        console.log('API Status:', response.data);
+      } catch (error) {
+        console.error('API Connection Error:', error);
+        // Add error message to chat
+        setMessages([{
+          id: Date.now(),
+          text: "⚠️ Tidak dapat terhubung ke server AI. Pastikan server Flask sedang berjalan di port 5000.",
+          sender: 'ai'
+        }]);
+      }
+    };
+    
+    testConnection();
+  }, []);
+
+  const handleSendMessage = async () => {
+    if (inputMessage.trim() && !isLoading) {
+      const userMessage = inputMessage.trim();
+      
+      // Add user message immediately
+      const newUserMessage = {
         id: Date.now(),
-        text: inputMessage,
+        text: userMessage,
         sender: 'user' as const
       };
-      
-      setMessages(prev => [...prev, newMessage]);
-      setInputMessage('');
+      setMessages(prev => [...prev, newUserMessage]);
+      setInputMessage(''); // Clear input field
+      setIsLoading(true);
 
-      // Simulate AI response (you can replace this with actual AI integration)
-      setTimeout(() => {
-        const aiResponse = {
+      try {
+        console.log('Sending message to:', `${AI_API_URL}/chat`);
+        
+        const response = await axios.post(`${AI_API_URL}/chat`, {
+          user_message: userMessage,
+          user_context: {
+            // Add any user context if needed
+            timestamp: new Date().toISOString()
+          }
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 30000 // 30 second timeout
+        });
+
+        console.log('API Response:', response.data);
+        
+        const aiResponseText = response.data.response;
+        const newAiMessage = {
           id: Date.now() + 1,
-          text: "Thank you for sharing! I'm here to help you discover your ideal career path. Could you tell me more about your interests, skills, or what kind of work environment you prefer?",
+          text: aiResponseText,
           sender: 'ai' as const
         };
-        setMessages(prev => [...prev, aiResponse]);
-      }, 1000);
+        setMessages(prev => [...prev, newAiMessage]);
+        
+      } catch (error: any) {
+        console.error('Error sending message to AI:', error);
+        
+        let errorMessage = "Maaf, terjadi kesalahan saat berkomunikasi dengan AI.";
+        
+        if (error.response) {
+          // Server responded with error status
+          console.error('Server Error:', error.response.data);
+          errorMessage = `Server Error: ${error.response.data.error || 'Unknown error'}`;
+        } else if (error.request) {
+          // Request was made but no response received
+          console.error('Network Error:', error.request);
+          errorMessage = "Tidak dapat terhubung ke server. Pastikan server Flask sedang berjalan.";
+        } else {
+          // Something else happened
+          console.error('Error:', error.message);
+          errorMessage = `Error: ${error.message}`;
+        }
+        
+        const newErrorMessage = {
+          id: Date.now() + 1,
+          text: errorMessage,
+          sender: 'ai' as const
+        };
+        setMessages(prev => [...prev, newErrorMessage]);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
-  useEffect(() =>{
+  
+  useEffect(() => {
      if (!isAuthenticated()) {
         navigate('/login'); 
         return;
      }
-  })
+  }, [navigate]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900/50 via-black to-blue-900/30 text-white">
-      {/* Global Sidebar - Hapus onNavigate prop */}
+      {/* Global Sidebar */}
       <Sidebar activePage="chatbot" />
 
       {/* Main Content */}
@@ -65,7 +142,7 @@ const DashboardPage: React.FC = () => {
         {/* Chat Container */}
         <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full">
           {/* Messages Area */}
-          <div className="flex-1 mb-6">
+          <div className="flex-1 mb-6 overflow-y-auto">
             {messages.length === 0 ? (
               /* Welcome Message */
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
@@ -96,16 +173,28 @@ const DashboardPage: React.FC = () => {
                           : 'bg-gray-800/50 border border-gray-700/50 text-gray-100'
                       }`}
                     >
-                      <p className="text-sm md:text-base">{message.text}</p>
+                      <p className="text-sm md:text-base whitespace-pre-wrap">{message.text}</p>
                     </div>
                   </div>
                 ))}
+                
+                {/* Loading indicator */}
+                {isLoading && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-800/50 border border-gray-700/50 text-gray-100 px-4 py-3 rounded-2xl">
+                      <div className="flex items-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
+                        <span className="text-sm">AI sedang mengetik...</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           {/* Chat Input - Fixed at bottom */}
-          <div className="sticky bottom-0 bg-transparant pt-4 pb-6">
+          <div className="sticky bottom-0 bg-transparent pt-4 pb-6">
             <div className="relative">
               <div className="relative bg-gray-800/50 backdrop-blur-sm border border-gray-600/50 rounded-2xl p-4 focus-within:border-purple-500/50 transition-colors">
                 <textarea
@@ -116,10 +205,11 @@ const DashboardPage: React.FC = () => {
                   className="w-full bg-transparent text-white placeholder-gray-400 resize-none outline-none text-base md:text-lg pr-12"
                   rows={1}
                   style={{ minHeight: '24px', maxHeight: '120px' }}
+                  disabled={isLoading}
                 />
                 <button
                   onClick={handleSendMessage}
-                  disabled={!inputMessage.trim()}
+                  disabled={!inputMessage.trim() || isLoading}
                   className="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 rounded-xl flex items-center justify-center transition-all duration-200 disabled:cursor-not-allowed hover:scale-105"
                 >
                   <Send className="w-5 h-5" />
