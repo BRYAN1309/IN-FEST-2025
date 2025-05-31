@@ -1,38 +1,72 @@
 import { useState, useEffect } from 'react';
 import { User, MessageCircle, FileText, TrendingUp, Clock, Award, Target, Book, ArrowRight, BarChart3, Zap, Calendar } from 'lucide-react';
+import { getProfile } from '@/api/auth';
 
 const DashboardHome = () => {
     const [currentTime, setCurrentTime] = useState('');
     const [currentDate, setCurrentDate] = useState('');
-    const [userName, setUserName] = useState('User');
+    const [userName, setUserName] = useState('Guest');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const updateTime = () => {
-        const now = new Date();
-        setCurrentTime(now.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            hour12: false 
-        }));
-        setCurrentDate(now.toLocaleDateString('en-US', { 
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric'
-        }));
+            const now = new Date();
+            
+            setCurrentTime(now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: false 
+            }));
+            setCurrentDate(now.toLocaleDateString('en-US', { 
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+            }));
         };
 
         updateTime();
         const timer = setInterval(updateTime, 60000);
+        
+        const fetchUserData = async () => {
+            try {
+                const user = await getProfile();
+                setUserName(user.name);
+                localStorage.setItem('user_name', user.name);
+                setError(null);
+            } catch (err) {
+                console.error('Failed to fetch user profile', err);
+                setError('Failed to load user data');
+                // Fallback to localStorage if available
+                const storedUser = localStorage.getItem('user_name');
+                if (storedUser) {
+                    setUserName(storedUser);
+                }
+            } finally {
+                setLoading(false);
+            }
+        };
 
-        // Get user info from localStorage if available
-        const storedUser = localStorage.getItem('user_name');
-        if (storedUser) {
-        setUserName(storedUser);
-        }
+        fetchUserData();
 
         return () => clearInterval(timer);
     }, []);
+    if (loading) {
+        return (
+            <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 md:p-8">
+                <div className="text-white">Loading user data...</div>
+            </div>
+        );
+    }
 
+    if (error) {
+        return (
+            <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 md:p-8">
+                <div className="text-red-400">{error}</div>
+            </div>
+        );
+    }
+    
     const handleQuickAction = (route: string) => {
         // This will be handled by parent component or global navigation
         window.location.href = route;
