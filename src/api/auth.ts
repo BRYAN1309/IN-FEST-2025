@@ -125,3 +125,37 @@ export const fetchGoals = async () => {
 export const isAuthenticated = () => {
   return !!localStorage.getItem('auth_token') || !!localStorage.getItem('token');
 };
+export const updateGoalTaskStatus = async (goalId: number, taskId: number, completed: boolean) => {
+  const token = localStorage.getItem('token');
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  const response = await api.put(`/auth/goals/${goalId}/task-status`, {
+    task_id: taskId,
+    completed: completed
+  });
+  return response.data;
+};
+
+// Replace the updateTaskStatus function in your React component with this:
+const updateTaskStatus = async (goalId, taskId) => {
+    try {
+        // Find the current task status
+        const goal = goals.find(g => g.id === goalId);
+        const task = goal.tasks.find(t => t.id === taskId);
+        const newCompletedStatus = !task.completed;
+
+        // Update via API
+        const updatedGoal = await updateGoalTaskStatus(goalId, taskId, newCompletedStatus);
+        
+        // Update local state with the response from backend
+        setGoals(goals.map(g => g.id === goalId ? {
+            ...updatedGoal,
+            // Ensure the response is properly formatted
+            createdDate: updatedGoal.created_at ? updatedGoal.created_at.split('T')[0] : g.createdDate,
+            dueDate: updatedGoal.due_date || updatedGoal.dueDate
+        } : g));
+        
+    } catch (error) {
+        console.error('Failed to update task status:', error);
+        setError('Failed to update task status. Please try again.');
+    }
+};

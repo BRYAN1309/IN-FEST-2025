@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Target, Plus, Edit3, Trash2, CheckCircle, Clock, Calendar, TrendingUp, Star, Filter, Search, BarChart3, Award, Zap, BookOpen, Code, Briefcase, Users, X, Save, Loader2 } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { useNavigate } from 'react-router-dom';
-import { isAuthenticated, fetchGoals } from '@/api/auth';
+import { isAuthenticated, fetchGoals,updateGoalTaskStatus } from '@/api/auth';
 import api from '@/api/axios';
 
 const GoalsPage = () => {
