@@ -28,7 +28,7 @@ export default function LoginForm() {
       const response = await login(formData);
       alert("Login successful!");
       console.log("Login response:", response);
-      navigate("/dashboard"); // or any route after successful login
+      navigate("/Home"); // or any route after successful login
     } catch (error: any) {
       console.error("Login error:", error);
       const msg =
