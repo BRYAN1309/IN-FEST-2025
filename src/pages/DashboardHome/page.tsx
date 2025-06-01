@@ -21,19 +21,19 @@ ChartJS.register(
 
 // Types for BPS data
 type BpsEmploymentData = {
-    year: number;
-    laborForce: number;
-    employed: number;
-    unemployed: number;
-    unemploymentRate: number;
-    employmentRate: number;
+  year: number;
+  laborForce: number;
+  employed: number;
+  unemployed: number;
+  unemploymentRate: number;
+  employmentRate: number;
 };
 
 type RecentUpdate = {
-    title: string;
-    date: string;
-    description: string;
-    type: 'report' | 'survey' | 'publication';
+  title: string;
+  date: string;
+  description: string;
+  type: 'report' | 'survey' | 'publication';
 };
 
 const DashboardHome = () => {
@@ -80,7 +80,7 @@ const DashboardHome = () => {
                 if (storedUser) {
                     setUserName(storedUser);
                 }
-                if ((err as any).response?.status === 401) {
+                 if ((err as any).response?.status === 401) {
                     localStorage.removeItem('auth_token');
                     localStorage.removeItem('token');
                     navigate('/login');
@@ -163,8 +163,6 @@ const DashboardHome = () => {
             window.location.href = '/';
         }
     };
-
-    
 
     const quickActions = [
         {
@@ -400,8 +398,8 @@ const DashboardHome = () => {
                                                                         const label = context.label || '';
                                                                         const value = context.raw || 0;
                                                                         const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                                                        const percentage = Math.round((value / total) * 100);
-                                                                        return `${label}: ${(value / 1000).toFixed(0)}K (${percentage}%)`;
+                                                                        const percentage = Math.round((Number(value) / total) * 100);
+                                                                        return `${label}: ${(Number(value) / 1000).toFixed(0)}K (${percentage}%)`;
                                                                     }
                                                                 }
                                                             }
@@ -520,7 +518,9 @@ const DashboardHome = () => {
                                                     },
                                                     ticks: {
                                                         color: '#9CA3AF',
-                                                        callback: (value: string) => value + 'K'
+                                                        callback: function(value: string | number) {
+                                                            return value + 'K';
+                                                        }
                                                     }
                                                 }
                                             }
@@ -532,93 +532,47 @@ const DashboardHome = () => {
                     </div>
                 </div>
 
-                    {/* Recent Updates */}
-                        <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
-                            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                                <Clock className="w-5 h-5 text-yellow-400" />
-                                Recent BPS Updates
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {isDataLoading ? (
-                                    Array(3).fill(0).map((_, index) => (
-                                        <div key={index} className="animate-pulse h-32 bg-gray-700/50 rounded-lg"></div>
-                                    ))
-                                ) : (
-                                    [
-                                        {
-                                            title: "Laporan Ekonomi Triwulan IV 2023",
-                                            description: "Pertumbuhan ekonomi Indonesia triwulan IV tahun 2023",
-                                            type: "report",
-                                            date: "2023-12-15",
-                                            link: "https://www.bps.go.id"
-                                        },
-                                        {
-                                            title: "Survei Sosial Ekonomi Nasional 2023",
-                                            description: "Hasil SUSENAS tahun 2023",
-                                            type: "survey",
-                                            date: "2023-11-20",
-                                            link: "https://www.bps.go.id"
-                                        },
-                                        {
-                                            title: "Penghargaan Inovasi Statistik 2023",
-                                            description: "BPS meraih penghargaan inovasi statistik",
-                                            type: "award",
-                                            date: "2023-10-05",
-                                            link: "https://www.bps.go.id"
-                                        },
-                                        {
-                                            title: "Laporan Indeks Pembangunan Manusia 2023",
-                                            description: "IPM Indonesia tahun 2023 mengalami peningkatan",
-                                            type: "report",
-                                            date: "2023-09-18",
-                                            link: "https://www.bps.go.id"
-                                        },
-                                        {
-                                            title: "Survei Tenaga Kerja Nasional",
-                                            description: "Hasil survei ketenagakerjaan Agustus 2023",
-                                            type: "survey",
-                                            date: "2023-08-30",
-                                            link: "https://www.bps.go.id"
-                                        },
-                                        {
-                                            title: "Statistik Perdagangan Luar Negeri",
-                                            description: "Neraca perdagangan Indonesia bulan Juli 2023",
-                                            type: "report",
-                                            date: "2023-07-25",
-                                            link: "https://www.bps.go.id"
-                                        }
-                                    ].map((update, index) => (
-                                        <a 
-                                            key={index} 
-                                            href={update.link}
-                                            className="block p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-gray-500/50 transition-colors group cursor-pointer"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${
-                                                update.type === 'report' ? 'bg-blue-500/20 text-blue-400' :
-                                                update.type === 'survey' ? 'bg-green-500/20 text-green-400' :
-                                                'bg-purple-500/20 text-purple-400'
-                                            }`}>
-                                                {update.type === 'report' ? <FileText className="w-4 h-4" /> :
-                                                update.type === 'survey' ? <Book className="w-4 h-4" /> :
-                                                <Award className="w-4 h-4" />}
-                                            </div>
-                                            <h3 className="font-medium text-white mb-1 group-hover:text-blue-400 transition-colors">
-                                                {update.title}
-                                            </h3>
-                                            <p className="text-gray-400 text-xs mb-2">{update.description}</p>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-gray-500">{new Date(update.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-                                                <span className="text-xs text-blue-400 hover:text-blue-300 flex items-center">
-                                                    Details <ArrowRight className="w-3 h-3 ml-1" />
-                                                </span>
-                                            </div>
-                                        </a>
-                                    ))
-                                )}
-                            </div>
+                {/* Recent Updates */}
+                <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
+                    <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-yellow-400" />
+                        Recent BPS Updates
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {isDataLoading ? (
+                            Array(3).fill(0).map((_, index) => (
+                                <div key={index} className="animate-pulse h-32 bg-gray-700/50 rounded-lg"></div>
+                            ))
+                        ) : (
+                            recentUpdates.map((update, index) => (
+                                <div
+                                    key={index}
+                                    className="block p-4 bg-gray-700/30 rounded-lg border border-gray-600/30 hover:border-gray-500/50 transition-colors group cursor-pointer"
+                                >
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-3 ${
+                                        update.type === 'report' ? 'bg-blue-500/20 text-blue-400' :
+                                        update.type === 'survey' ? 'bg-green-500/20 text-green-400' :
+                                        'bg-purple-500/20 text-purple-400'
+                                    }`}>
+                                        {update.type === 'report' ? <FileText className="w-4 h-4" /> :
+                                        update.type === 'survey' ? <Book className="w-4 h-4" /> :
+                                        <Award className="w-4 h-4" />}
+                                    </div>
+                                    <h3 className="font-medium text-white mb-1 group-hover:text-blue-400 transition-colors">
+                                        {update.title}
+                                    </h3>
+                                    <p className="text-gray-400 text-xs mb-2">{update.description}</p>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs text-gray-500">{new Date(update.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                                        <span className="text-xs text-blue-400 hover:text-blue-300 flex items-center">
+                                            Details <ArrowRight className="w-3 h-3 ml-1" />
+                                        </span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
+                </div>
 
                 {/* Data Source */}
                 <div className="text-center text-gray-500 text-xs">

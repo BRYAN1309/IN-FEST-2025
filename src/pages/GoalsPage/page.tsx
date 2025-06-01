@@ -1,27 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { Target, Plus, Edit3, Trash2, CheckCircle, Clock, Calendar, TrendingUp, Star, Filter, Search, BarChart3, Award, Zap, BookOpen, Code, Briefcase, Users, X, Save, Loader2 } from 'lucide-react';
+import { useEffect, useState, type SetStateAction } from 'react';
+import { Target, Plus, Edit3, Trash2, CheckCircle, Clock, Calendar, TrendingUp, Filter, Search, Award, Code, Briefcase, Users, X, Loader2 } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { useNavigate } from 'react-router-dom';
-import { isAuthenticated, fetchGoals,updateGoalTaskStatus } from '@/api/auth';
+import { isAuthenticated, fetchGoals } from '@/api/auth';
 import api from '@/api/axios';
 
 const GoalsPage = () => {
     const [activePage, setActivePage] = useState('goals');
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     // Initialize with empty array instead of hardcoded data
-    const [goals, setGoals] = useState([]);
+    type GoalTask = { id: number; text: string; completed: boolean };
+    type Priority = 'High' | 'Medium' | 'Low';
+    type Goal = {
+            id: number;
+            title: string;
+            description: string;
+            category: keyof typeof categoryIcons;
+            priority: Priority;
+            progress: number;
+            status: string;
+            dueDate: string;
+            createdDate: string;
+            tasks: GoalTask[];
+        };
+    const [goals, setGoals] = useState<Goal[]>([]);
 
     const [showAddGoal, setShowAddGoal] = useState(false);
     const [showEditGoal, setShowEditGoal] = useState(false);
-    const [editingGoal, setEditingGoal] = useState(null);
+    const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [deletingGoalId, setDeletingGoalId] = useState(null);
+    const [deletingGoalId, setDeletingGoalId] = useState<number | null>(null);
     const [filterCategory, setFilterCategory] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
-    const [expandedGoal, setExpandedGoal] = useState(null);
+    const [expandedGoal, setExpandedGoal] = useState<number | null>(null);
 
     // Form state for add/edit goal
     const [formData, setFormData] = useState({
@@ -50,7 +64,7 @@ const GoalsPage = () => {
             const goalsData = await fetchGoals();
             
             // Transform the API data to match your component's expected format
-            const transformedGoals = goalsData.map(goal => ({
+            const transformedGoals = goalsData.map((goal: { id: any; title: any; description: any; category: any; priority: any; progress: any; status: any; due_date: any; dueDate: any; created_at: string; tasks: any; }) => ({
                 id: goal.id,
                 title: goal.title,
                 description: goal.description || '',
@@ -60,7 +74,11 @@ const GoalsPage = () => {
                 status: goal.status || 'In Progress',
                 dueDate: goal.due_date || goal.dueDate,
                 createdDate: goal.created_at ? goal.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
-                tasks: goal.tasks || []
+                tasks: (goal.tasks || []).map((task: { id: any; text: any; completed: any; }, idx: number) => ({
+                    id: task.id ?? idx + 1,
+                    text: task.text ?? task,
+                    completed: typeof task.completed === 'boolean' ? task.completed : false
+                }))
             }));
             
             setGoals(transformedGoals);
@@ -73,7 +91,7 @@ const GoalsPage = () => {
     };
 
     // Function to create a new goal via API
-    const createGoal = async (goalData) => {
+    const createGoal = async (goalData: { title: any; description: any; category: any; priority: any; dueDate: any; tasks: any; }) => {
         try {
             const token = localStorage.getItem('token');
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -84,7 +102,7 @@ const GoalsPage = () => {
                 category: goalData.category,
                 priority: goalData.priority,
                 due_date: goalData.dueDate,
-                tasks: goalData.tasks.filter(task => task.trim()).map((task, index) => ({
+                tasks: goalData.tasks.filter((task: string) => task.trim()).map((task: any, index: number) => ({
                     id: index + 1,
                     text: task,
                     completed: false
@@ -99,7 +117,7 @@ const GoalsPage = () => {
     };
 
     // Function to update a goal via API
-    const updateGoal = async (goalId, goalData) => {
+    const updateGoal = async (goalId: any, goalData: { title: any; description: any; category: any; priority: any; dueDate: any; tasks: any; }) => {
         try {
             const token = localStorage.getItem('token');
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -110,7 +128,7 @@ const GoalsPage = () => {
                 category: goalData.category,
                 priority: goalData.priority,
                 due_date: goalData.dueDate,
-                tasks: goalData.tasks.filter(task => task.trim()).map((task, index) => ({
+                tasks: goalData.tasks.filter((task: string) => task.trim()).map((task: any, index: number) => ({
                     id: index + 1,
                     text: task,
                     completed: false
@@ -125,7 +143,8 @@ const GoalsPage = () => {
     };
 
     // Function to delete a goal via API
-    const deleteGoal = async (goalId) => {
+    const deleteGoal = async (goalId: number | null) => {
+        if (goalId === null) return;
         try {
             const token = localStorage.getItem('token');
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -140,7 +159,7 @@ const GoalsPage = () => {
     const categories = ['All', 'Technical Skills', 'Career Development', 'Certifications', 'Networking'];
     const priorityOptions = ['High', 'Medium', 'Low'];
     
-    const priorityColors = {
+    const priorityColors: Record<'High' | 'Medium' | 'Low', string> = {
         'High': 'text-red-400 bg-red-500/20',
         'Medium': 'text-yellow-400 bg-yellow-500/20',
         'Low': 'text-green-400 bg-green-500/20'
@@ -191,27 +210,33 @@ const GoalsPage = () => {
         }
     ];
 
-    const getDaysUntilDue = (dueDate) => {
+    const getDaysUntilDue = (dueDate: string | number | Date) => {
         const today = new Date();
         const due = new Date(dueDate);
-        const diffTime = due - today;
+        const diffTime = due.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays;
     };
 
-    const toggleGoalExpansion = (goalId) => {
+    const toggleGoalExpansion = (goalId: number) => {
         setExpandedGoal(expandedGoal === goalId ? null : goalId);
     };
 
-    const updateTaskStatus = (goalId, taskId) => {
+    const updateTaskStatus = (goalId: number, taskId: number) => {
         setGoals(goals.map(goal => {
             if (goal.id === goalId) {
-                const updatedTasks = goal.tasks.map(task => 
-                    task.id === taskId ? { ...task, completed: !task.completed } : task
-                );
-                const completedTasks = updatedTasks.filter(task => task.completed).length;
-                const newProgress = Math.round((completedTasks / updatedTasks.length) * 100);
-                
+                const updatedTasks = Array.isArray(goal.tasks)
+                    ? goal.tasks.map((task) =>
+                        (task && typeof task.id === 'number')
+                            ? (task.id === taskId ? { ...task, completed: !task.completed } : task)
+                            : task
+                      )
+                    : [];
+                const completedTasks = updatedTasks.filter((task) => task && task.completed).length;
+                const newProgress = updatedTasks.length > 0
+                    ? Math.round((completedTasks / updatedTasks.length) * 100)
+                    : 0;
+    
                 return {
                     ...goal,
                     tasks: updatedTasks,
@@ -250,7 +275,8 @@ const GoalsPage = () => {
         }
     };
 
-    const handleEditGoal = (goal) => {
+    const handleEditGoal = (goal: Goal) => {
+        if (!goal) return;
         setEditingGoal(goal);
         setFormData({
             title: goal.title,
@@ -258,13 +284,13 @@ const GoalsPage = () => {
             category: goal.category,
             priority: goal.priority,
             dueDate: goal.dueDate,
-            tasks: goal.tasks.map(task => task.text)
+            tasks: goal.tasks.map((task) => task.text)
         });
         setShowEditGoal(true);
     };
 
     const handleUpdateGoal = async () => {
-        if (!formData.title.trim()) return;
+        if (!formData.title.trim() || !editingGoal) return;
 
         try {
             setLoading(true);
@@ -280,7 +306,7 @@ const GoalsPage = () => {
         }
     };
 
-    const handleDeleteGoal = (goalId) => {
+    const handleDeleteGoal = (goalId: number) => {
         setDeletingGoalId(goalId);
         setShowDeleteConfirm(true);
     };
@@ -303,18 +329,18 @@ const GoalsPage = () => {
         setFormData({ ...formData, tasks: [...formData.tasks, ''] });
     };
 
-    const removeTaskFromForm = (index) => {
+    const removeTaskFromForm = (index: number) => {
         const newTasks = formData.tasks.filter((_, i) => i !== index);
         setFormData({ ...formData, tasks: newTasks });
     };
 
-    const updateTaskInForm = (index, value) => {
+    const updateTaskInForm = (index: number, value: string) => {
         const newTasks = [...formData.tasks];
         newTasks[index] = value;
         setFormData({ ...formData, tasks: newTasks });
     };
 
-    const handleNavigation = (page) => {
+    const handleNavigation = (page: SetStateAction<string>) => {
         setActivePage(page);
     };
 
@@ -427,7 +453,18 @@ const GoalsPage = () => {
 
                 {/* Goals Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {filteredGoals.map((goal) => {
+                    {filteredGoals.map((goal: {
+                        id: number;
+                        title: string;
+                        description: string;
+                        category: keyof typeof categoryIcons;
+                        priority: string;
+                        progress: number;
+                        status: string;
+                        dueDate: string;
+                        createdDate: string;
+                        tasks: { id: number; text: string; completed: boolean }[];
+                    }) => {
                         const daysUntilDue = getDaysUntilDue(goal.dueDate);
                         const isExpanded = expandedGoal === goal.id;
                         
@@ -446,13 +483,10 @@ const GoalsPage = () => {
                                         </div>
                                         <p className="text-gray-400 text-sm mb-3">{goal.description}</p>
                                     </div>
-                                    <div className="flex items-center gap-2 ml-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[goal.priority]}`}>
-                                            {goal.priority}
-                                        </span>
-                                    </div>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[goal.priority as Priority]}`}>
+                                        {goal.priority}
+                                    </span>
                                 </div>
-
                                 {/* Progress Bar */}
                                 <div className="mb-4">
                                     <div className="flex items-center justify-between mb-2">
@@ -491,7 +525,7 @@ const GoalsPage = () => {
                                     </button>
                                     <div className="flex items-center gap-2">
                                         <button 
-                                            onClick={() => handleEditGoal(goal)}
+                                            onClick={() => handleEditGoal({...goal, priority: goal.priority as Priority})}
                                             disabled={loading}
                                             className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all disabled:opacity-50"
                                         >
