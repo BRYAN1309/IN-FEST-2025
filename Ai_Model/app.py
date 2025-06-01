@@ -31,7 +31,8 @@ CORS(app, resources={
             "http://localhost:5173",
             "http://127.0.0.1:5173",
             "http://localhost:3000",
-            "http://127.0.0.1:8000"
+            "http://127.0.0.1:8000",
+            "https://nextpath.my.id"
         ]
     }
 })
@@ -48,7 +49,7 @@ def initialize_model():
     try:
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
-            api_key = ""
+            api_key = "AIzaSyDe6ybNaVlchUJfWsfkIh2YjJNpqGy3Xgk"
             logger.warning("Using hardcoded API key - set GOOGLE_API_KEY env variable")
 
         model_path = os.path.join("Ai_Model", "my_career_chatbot.pkl")

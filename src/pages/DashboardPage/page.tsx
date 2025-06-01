@@ -13,7 +13,7 @@ const DashboardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // API URL - sesuaikan dengan server Anda
-  const AI_API_URL = 'http://localhost:5000'; // atau 'http://127.0.0.1:5000'
+  const AI_API_URL = "http://model.nextpath.my.id/"; // atau 'http://127.0.0.1:5000'
 
   // Test API connection on component mount
   useEffect(() => {
