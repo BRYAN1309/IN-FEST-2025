@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo>(initialUserInfo);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [hasFetched, setHasFetched] = useState(false);
   
   const sidebarRef = useRef<HTMLDivElement>(null);

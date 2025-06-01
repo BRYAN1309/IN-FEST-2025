@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpen, Clock, User, ArrowRight } from 'lucide-react';
+import { Clock, User, ArrowRight } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { getArticles } from '@/api/auth';
 import { isAuthenticated } from '@/api/auth';

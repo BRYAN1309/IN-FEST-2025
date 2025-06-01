@@ -39,7 +39,7 @@ const DashboardHome = () => {
     const [currentTime, setCurrentTime] = useState('');
     const [currentDate, setCurrentDate] = useState('');
     const [userName, setUserName] = useState('Guest');
-    const [, setLoading] = useState(true);
+    const [ ,setLoading] = useState(true);
     const [, setError] = useState<string | null>(null);
     const [employmentData, setEmploymentData] = useState<BpsEmploymentData[]>([]);
     const [recentUpdates, setRecentUpdates] = useState<RecentUpdate[]>([]);
