@@ -1,7 +1,5 @@
 // src/api/auth.ts
 import api from './axios';
-import axios from './axios';
-
 
 interface User {
   name: string;
@@ -136,11 +134,11 @@ export const updateGoalTaskStatus = async (goalId: number, taskId: number, compl
 };
 
 // Replace the updateTaskStatus function in your React component with this:
-const updateTaskStatus = async (goalId, taskId) => {
+const updateTaskStatus = async (goals: any[], goalId: number, taskId: number) => {
     try {
         // Find the current task status
         const goal = goals.find(g => g.id === goalId);
-        const task = goal.tasks.find(t => t.id === taskId);
+        const task = goal.tasks.find((t: { id: number; }) => t.id === taskId);
         const newCompletedStatus = !task.completed;
 
         // Update via API
@@ -159,3 +157,11 @@ const updateTaskStatus = async (goalId, taskId) => {
         setError('Failed to update task status. Please try again.');
     }
 };
+
+function setGoals(_arg0: any[]) {
+  throw new Error('Function not implemented.');
+}
+function setError(_arg0: string) {
+  throw new Error('Function not implemented.');
+}
+
