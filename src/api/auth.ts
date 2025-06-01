@@ -134,7 +134,7 @@ export const updateGoalTaskStatus = async (goalId: number, taskId: number, compl
 };
 
 // Replace the updateTaskStatus function in your React component with this:
-const updateTaskStatus = async (goals: any[], goalId: number, taskId: number) => {
+export const  updateTaskStatus = async (goals: any[], goalId: number, taskId: number) => {
     try {
         // Find the current task status
         const goal = goals.find(g => g.id === goalId);

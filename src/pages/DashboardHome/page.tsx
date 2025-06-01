@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { User, MessageCircle, FileText, TrendingUp, Clock, Award, Target, Book, ArrowRight, BarChart3, Zap, Calendar, LogOut } from 'lucide-react';
+import { User, MessageCircle, FileText, TrendingUp, Clock, Award, Target, Book, ArrowRight, BarChart3, LogOut } from 'lucide-react';
 import { getProfile, logout, isAuthenticated } from '@/api/auth';
 import { useNavigate } from 'react-router-dom';
 import { Line, Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-
 // Register ChartJS components
 ChartJS.register(
     CategoryScale,
@@ -40,14 +39,14 @@ const DashboardHome = () => {
     const [currentTime, setCurrentTime] = useState('');
     const [currentDate, setCurrentDate] = useState('');
     const [userName, setUserName] = useState('Guest');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [, setLoading] = useState(true);
+    const [, setError] = useState<string | null>(null);
     const [employmentData, setEmploymentData] = useState<BpsEmploymentData[]>([]);
     const [recentUpdates, setRecentUpdates] = useState<RecentUpdate[]>([]);
     const [selectedYear, setSelectedYear] = useState<number>(2023);
     const [isDataLoading, setIsDataLoading] = useState(true);
     const navigate = useNavigate();
-
+   
     useEffect(() => {
         const updateTime = () => {
             const now = new Date();
@@ -63,7 +62,10 @@ const DashboardHome = () => {
                 day: 'numeric'
             }));
         };
-
+        if (!isAuthenticated()) {
+                navigate('/login'); 
+                return;
+            }
         updateTime();
         const timer = setInterval(updateTime, 60000);
         
@@ -256,6 +258,7 @@ const DashboardHome = () => {
     } : null;
 
     return (
+        
         <div className="min-h-screen bg-gradient-to-br from-black p-6">
             <div className="max-w-7xl mx-auto space-y-6">
                 
