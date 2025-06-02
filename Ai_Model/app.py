@@ -49,7 +49,7 @@ def initialize_model():
     try:
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
-            api_key = "AIzaSyDe6ybNaVlchUJfWsfkIh2YjJNpqGy3Xgk"
+            api_key = ""
             logger.warning("Using hardcoded API key - set GOOGLE_API_KEY env variable")
 
         model_path = os.path.join("Ai_Model", "my_career_chatbot.pkl")
